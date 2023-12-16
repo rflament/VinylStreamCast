@@ -13,15 +13,12 @@ body {
     background-color: #000; /* Black background */
     color: #fff; /* White text color for better readability on black background */
 }
-
         .content {
             display: flex;
-            justify-content: center;
             align-items: center;
-            width: 800px; /* Total width */
+            flex-direction: row;
         }
 .turntable-container {
-    width: 400px; /* Each container takes half the width */
     text-align: center;
 }
 
@@ -29,7 +26,6 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    width: 400px;
     text-align: left;
     padding: 10px;  /* Add some padding */
     overflow: hidden; /* Prevents overflow */
@@ -43,9 +39,10 @@ body {
 
 
 	.turntable {
-            max-width: 100%;
             height: auto;
+            max-width: 400px;
             margin: 20px 0;
+            padding-left: 5px;
         }
        .spinning {
         animation: spin 3s linear infinite;
@@ -54,6 +51,22 @@ body {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+
+
+/* Responsive layout for portrait mode (phones) */
+@media screen and (max-width: 780px) {
+    .content {
+        flex-direction: column; /* Stack elements vertically */
+    }
+
+    .turntable {
+        max-width: 100%;
+        height: auto;
+        margin-left: 0;
+    }
+}
+
     </style>
 </head>
 <body>

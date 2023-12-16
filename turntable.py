@@ -12,18 +12,17 @@ PORT = 5000
 os.environ['DISPLAY'] = ':0.0'
 app = Flask(__name__)
 cast_connection = None
-
+chromecast_name = "Stereo"
 
 ## Functions
 
 def start_darkice():
     command = ["/usr/bin/darkice", "-c", "/home/pi/turntable/darkice.cfg"]
     try:
-        subprocess.run(command, check=True)
+        subprocess.Popen(command)
         print("Darkice started successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Failed to start Darkice: {e}")
-
 
 def get_ip_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -37,12 +36,12 @@ def init_chromecast_connection():
     global cast_connection
     services, browser = pychromecast.discovery.discover_chromecasts()
     pychromecast.discovery.stop_discovery(browser)
-    chromecasts, browser = pychromecast.get_listed_chromecasts(friendly_names=["Stereo"])
+    chromecasts, browser = pychromecast.get_listed_chromecasts(friendly_names=[chromecast_name])
     if not chromecasts:
-        print("chromecast not found")
+        print("chromecast not found: "+ chromecast_name)
         return "No Chromecast with specified name found"
     castaudio = chromecasts[0]
-    print("chromecast found");
+    print("chromecast found: "+ chromecast_name);
     castaudio.wait()
     print(castaudio.status)
     cast_connection = castaudio
@@ -52,7 +51,6 @@ def start_cast():
     ip_address = get_ip_address('wlan0')
     stream_url = 'http://' + ip_address + ':8000/rapi.mp3'
     print('casting '+stream_url)
-
     cast_connection.wait()
     cast_connection.set_volume(0.40)
     mc = cast_connection.media_controller
@@ -65,17 +63,24 @@ def start_cast():
 def get_chromecast_song_status():
     global cast_connection
     image_url = "https://coloredvinylrecords.com/pictures/w/wu-tang-clan-enter-the-wu-tang-36-chambers.png"
+    source = "unknown"
     try:
         cast_connection.wait()
         media_status = cast_connection.media_controller.status
-#        print(media_status)
+        print(media_status)
         if media_status:
             if media_status.images and len(media_status.images) > 2:
                 image_url = media_status.images[2].url
-            return {"title": media_status.title, "artist": media_status.artist, "image": image_url, "source": media_status.content_type , "status": media_status.player_state }
+            if "spotify" in media_status.content_type.lower():
+                source = "spotify"
+            elif "rapi.mp3" in media_status.content_id.lower():
+                source = "vinyl"
+
+            return {"title": media_status.title, "artist": media_status.artist, "image": image_url, "source": source , "status": media_status.player_state.lower() }
         else:
             return {"status":"stopped", "image": image_url}
     except Exception as e:
+        print(f"Error: {e}")
         return {"status":"error", "image": image_url}
 
 def hide_cursor():
@@ -106,12 +111,8 @@ def log_play_pressed():
     start_cast()
     return jsonify({"status": "Logged Play Pressed"}), 200
 
-
-
 def start_flask_app():
     app.run(host='0.0.0.0', port=PORT, debug=True, use_reloader=False)
-
-
 
 hide_cursor()
 flask_thread = threading.Thread(target=start_flask_app)
@@ -124,5 +125,3 @@ time.sleep(2)
 chromium_thread.start()
 init_chromecast_connection()
 
-# cast
-#cast.cast();
