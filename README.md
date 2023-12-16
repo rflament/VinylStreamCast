@@ -40,4 +40,14 @@ Using a Raspberry Pi, this application enables the streaming of audio from a vin
 
 
 
-Configure DarkIce: Adjust /home/pi/turntable/darkice.cfg with your specific DarkIce configuration.
+## Contributing
+
+Contributions to VinylStreamCast are welcome! If you've got ideas for improvements or found a bug, don't hesitate to open an issue or submit a pull request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE.md file for details.
+
+## Acknowledgments
+
+Inspired by https://maker.pro/raspberry-pi/projects/how-to-build-an-internet-radio-station-with-raspberry-pi-darkice-and-icecast
