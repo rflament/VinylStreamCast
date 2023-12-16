@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    background-color: #000; /* Black background */
+    color: #fff; /* White text color for better readability on black background */
+}
+
+        .content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 800px; /* Total width */
+        }
+.turntable-container {
+    width: 400px; /* Each container takes half the width */
+    text-align: center;
+}
+
+.api-result-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 400px;
+    text-align: left;
+    padding: 10px;  /* Add some padding */
+    overflow: hidden; /* Prevents overflow */
+}
+
+.api-result-container p {
+    margin: 10px 0;
+    font-size: 1.9em; /* Adjust the font size as needed */
+    word-wrap: break-word; /* Wrap long words */
+}
+
+
+	.turntable {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+        }
+       .spinning {
+        animation: spin 3s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="content">
+        <div class="turntable-container">
+            <img id="albumArt" alt="Album Art" class="turntable">
+        </div>
+<div class="api-result-container">
+    <p><span id="artistName">Loading...</span></p>
+    <p><span id="songTitle">Loading...</span></p>
+</div>
+
+
+    </div>
+
+
+<footer style="height: 100px; width: 100%; text-align: right; z-index: -1; position: fixed; bottom: 0; background-color: #000; color: white;">
+   
+ <button id="playButton" style="background: none; border: none; cursor: pointer;">
+        <img src="static/play-disc.png" alt="Play" style="height: 100px;">
+    </button>
+
+ </footer>
+
+
+
+    <script>
+       function fetchSongStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    const albumArt = document.getElementById('albumArt');
+            	    if (data.image) {
+                     albumArt.src = data.image;
+                     }
+
+
+// Check if the status is 'playing' and the source is 'vinyl'
+            if (data.status === "playing" && data.source === "vinyl") {
+                albumArt.classList.add('spinning');
+            } else {
+                albumArt.classList.remove('spinning');
+            }
+
+
+                    document.getElementById('artistName').textContent = data.artist || 'Unknown Artist';
+                    document.getElementById('songTitle').textContent = data.title || 'Unknown Title';
+                })
+                .catch(error => {
+                    document.getElementById('apiResult').textContent = 'Error fetching API data';
+                });
+        }
+
+        // Fetch the song status immediately
+        fetchSongStatus();
+
+        // Set an interval to refresh the song status every 5 seconds
+        setInterval(fetchSongStatus, 5000);
+
+        document.getElementById('playButton').addEventListener('click', function() {
+            fetch('/api/play', { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        console.log("Play pressed logged on the server");
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
+
+
+    </script>
+</body>
+</html>
