@@ -30,12 +30,24 @@ Using a Raspberry Pi, this application enables the streaming of audio from a vin
    sudo apt-get install python3-pip
    pip3 install Flask pychromecast
 
-3. **Clone the Repository:**:
+3. **Pair the turntable**:
+
+   ```bash
+   sudo bluetoothctl
+   power on
+   pairable on
+   scan on
+   pair TABLE_MAC_ADDRESS
+   connect TABLE_MAC_ADDRESS
+   
+   
+
+4. **Clone the Repository:**:
    ```bash
    git clone https://github.com/your-username/VinylStreamCast.git
    cd VinylStreamCast
    
-4. **Configure DarkIce::**:
+5. **Configure DarkIce::**:
  Adjust /home/pi/turntable/darkice.cfg with your specific DarkIce configuration.
 
 
